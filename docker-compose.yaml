@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # --- Configuração do Backend (FastAPI) ---
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    # Nome para o container (opcional, mas bom)
+    container_name: weather-backend
+    # Mapeamento de portas: HOST:CONTAINER
+    ports:
+      - "8000:8000"  # Permite que você acesse em http://localhost:8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/app
+    restart: always
+
+  # --- Configuração do Frontend (Next.js) ---
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: weather-frontend
+    # Mapeamento de portas: HOST:CONTAINER
+    ports:
+      - "3000:3000"  # Permite que você acesse em http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    # Depende do backend para ter a rede pronta
+    depends_on:
+      - backend
+    restart: always
